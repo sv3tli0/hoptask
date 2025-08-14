@@ -10,5 +10,5 @@ enum PostStatus: string
     case Approved = 'approved';
     case Rejected = 'rejected';
 
-    const DEFAULT = self::Pending;
+    const PostStatus DEFAULT = self::Pending;
 }
