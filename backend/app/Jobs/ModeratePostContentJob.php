@@ -16,10 +16,12 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class ModeratePostContentJob implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue;
+    use InteractsWithQueue, Queueable;
 
     public int $tries = 5;
+
     public int $maxExceptions = 3;
+
     public array $backoff = [30, 60, 120, 300]; // Retry after 30s, 1m, 2m, 5m
 
     public function __construct(
@@ -35,10 +37,10 @@ class ModeratePostContentJob implements ShouldQueue
 
         try {
             $moderationResult = $moderationService->moderate($post->content);
-            
+
             // Check if service returned an error
             if ($moderationResult['error'] ?? false) {
-                throw new Exception('Gemini moderation service unavailable: ' . ($moderationResult['reason'] ?? 'Unknown error'));
+                throw new Exception('Gemini moderation service unavailable: '.($moderationResult['reason'] ?? 'Unknown error'));
             }
 
             // Store moderation result in PostModeration model
@@ -81,7 +83,7 @@ class ModeratePostContentJob implements ShouldQueue
                     'categories' => null,
                     'severity' => PostModerationSeverity::Medium,
                     'confidence' => null,
-                    'reason' => 'Moderation service failed after ' . $this->tries . ' attempts',
+                    'reason' => 'Moderation service failed after '.$this->tries.' attempts',
                     'error' => true,
                 ]);
 
@@ -100,5 +102,4 @@ class ModeratePostContentJob implements ShouldQueue
             }
         }
     }
-
 }
