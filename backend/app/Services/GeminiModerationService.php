@@ -6,14 +6,15 @@ namespace App\Services;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GeminiModerationService
 {
     private string $apiKey;
 
-    private string $model;
+    public private(set) string $model;
 
-    private string $endpoint;
+    public private(set) string $endpoint;
 
     public function __construct()
     {
@@ -37,7 +38,7 @@ class GeminiModerationService
                 $this->makeRequest($content)
             );
         } catch (Exception $e) {
-            logger()->error('Gemini moderation failed: '.$e->getMessage());
+            Log::error('Gemini moderation failed: '.$e->getMessage());
 
             return [
                 'approved' => false,
@@ -86,12 +87,22 @@ class GeminiModerationService
             throw new Exception('API error: '.$response->body());
         }
 
-        return $response->json();
+        $responseData = $response->json();
+
+        if ($responseData === null) {
+            throw new Exception('Empty or invalid response from API');
+        }
+
+        return $responseData;
     }
 
     /** Parse API response */
     private function parseResponse(array $response): array
     {
+        if (isset($response['error'])) {
+            throw new Exception('API error: '.($response['error']['message'] ?? 'Unknown error'));
+        }
+
         $text = $response['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
         if (empty($text)) {
@@ -101,7 +112,7 @@ class GeminiModerationService
         $result = json_decode($text, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response');
+            throw new Exception('Invalid JSON response: '.$text);
         }
 
         return [
@@ -112,5 +123,93 @@ class GeminiModerationService
             'reason' => $result['reason'] ?? 'Unknown',
             'error' => false,
         ];
+    }
+
+    public static function fakeAnswers(?string $type = null): array
+    {
+        $responses = match ($type) {
+            'approved' => [
+                'candidates' => [
+                    [
+                        'content' => [
+                            'parts' => [
+                                [
+                                    'text' => json_encode([
+                                        'approved' => true,
+                                        'categories' => [],
+                                        'severity' => 'low',
+                                        'confidence' => 0.95,
+                                        'reason' => 'Content is safe',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'rejected' => [
+                'candidates' => [
+                    [
+                        'content' => [
+                            'parts' => [
+                                [
+                                    'text' => json_encode([
+                                        'approved' => false,
+                                        'categories' => ['spam', 'hate_speech'],
+                                        'severity' => 'high',
+                                        'confidence' => 0.99,
+                                        'reason' => 'Content violates community standards',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'error' => [
+                'error' => [
+                    'code' => 500,
+                    'message' => 'Internal server error',
+                    'status' => 'INTERNAL',
+                ],
+            ],
+            'invalid_json' => [
+                'candidates' => [
+                    [
+                        'content' => [
+                            'parts' => [
+                                [
+                                    'text' => 'Invalid JSON response',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'empty_response' => [
+                'candidates' => [],
+            ],
+            default => [
+                'candidates' => [
+                    [
+                        'content' => [
+                            'parts' => [
+                                [
+                                    'text' => json_encode([
+                                        'approved' => random_int(0, 1) === 1,
+                                        'categories' => [],
+                                        'severity' => 'low',
+                                        'confidence' => 0.9,
+                                        'reason' => 'Random test response',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        };
+
+        return $responses;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\PostStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePostRequest extends FormRequest
@@ -13,7 +14,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->tokenCan('create_posts');
     }
 
     /**
@@ -24,7 +25,9 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'content' => [
+                'required', 'string', 'max:10000',
+            ],
         ];
     }
 }

@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
 class ModeratePostContentJob implements ShouldQueue
 {
@@ -60,7 +61,7 @@ class ModeratePostContentJob implements ShouldQueue
                 'moderation_reason' => $moderationResult['approved'] ? null : $moderationResult['reason'],
             ]);
 
-            logger()->info('Post moderation completed successfully', [
+            Log::info('Post moderation completed successfully', [
                 'post_id' => $post->id,
                 'approved' => $moderationResult['approved'],
                 'moderation_id' => $postModeration->id,
@@ -68,7 +69,7 @@ class ModeratePostContentJob implements ShouldQueue
             ]);
 
         } catch (Exception $e) {
-            logger()->warning('Post moderation attempt failed', [
+            Log::warning('Post moderation attempt failed', [
                 'post_id' => $post->id,
                 'attempt' => $this->attempts(),
                 'max_tries' => $this->tries,
@@ -92,7 +93,7 @@ class ModeratePostContentJob implements ShouldQueue
                     'moderation_reason' => 'Content could not be moderated due to service issues',
                 ]);
 
-                logger()->error('Post moderation permanently failed', [
+                Log::error('Post moderation permanently failed', [
                     'post_id' => $post->id,
                     'final_error' => $e->getMessage(),
                 ]);

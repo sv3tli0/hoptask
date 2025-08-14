@@ -22,7 +22,7 @@ return new class extends Migration
                 ->nullable()
                 ->comment('Reason for moderation, if applicable');
             $table->enum('status', Arr::pluck(PostStatus::cases(), 'value'))
-                ->default(PostStatus::Pending)
+                ->default(PostStatus::DEFAULT->value)
                 ->comment('Status of the post, e.g., Pending, Approved, Rejected');
             $table->timestamps();
         });
