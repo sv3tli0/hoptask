@@ -16,7 +16,7 @@ class PostController extends Controller
         $post = Post::query()->create($request->validated());
 
         ModeratePostContentJob::dispatch($post->id)
-            ->onQueue('moderation');// not actually needed as we have set default queue within the job class
+            ->onQueue('moderation');
 
         return response()->json([
             'message' => 'Post created successfully',
