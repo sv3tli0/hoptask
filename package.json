@@ -4,15 +4,14 @@
   "description": "Content moderation system with Laravel backend, Vue frontend, and WebSocket real-time updates",
   "main": "websocket-server.js",
   "scripts": {
-    "build": "npm run build:deps && npm run build:frontend && npm run build:backend",
-    "build:deps": "npm install && cd frontend && npm install && cd ../backend && composer install && php artisan migrate --force",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && php artisan config:cache && php artisan route:cache && php artisan view:cache",
-    "dev": "concurrently --kill-others --prefix '[{name}]' --names 'websocket,laravel,queue,vue' 'npm run ws' 'npm run laravel:serve' 'npm run laravel:queue' 'npm run vue:dev'",
-    "ws": "node websocket-server.js",
-    "laravel:serve": "cd backend && php artisan serve",
-    "laravel:queue": "cd backend && php artisan queue:work --queue=moderation,websocket",
-    "vue:dev": "cd frontend && npm run dev"
+    "setup": "npm run setup:frontend && npm run setup:backend",
+    "setup:frontend": "npm install && cd frontend && npm install",
+    "setup:backend": "cd backend && composer install && [ ! -f .env ] && cp .env.example .env || echo '.env already exists' && php artisan key:generate && php artisan migrate",
+    "dev": "concurrently --kill-others --prefix '[{name}]' --names 'websocket,laravel,queue,vue' 'npm run dev:websocket' 'npm run dev:backend' 'npm run dev:queue' 'npm run dev:frontend'",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && php artisan serve",
+    "dev:queue": "cd backend && php artisan queue:work --queue=moderation,websocket",
+    "dev:websocket": "node websocket-server.js"
   },
   "dependencies": {
     "concurrently": "^9.1.0",
