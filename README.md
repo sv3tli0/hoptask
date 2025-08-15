@@ -32,6 +32,12 @@ The setup command automatically:
 
 **Important**: Add your `GEMINI_API_KEY` to `backend/.env` for content moderation to work.
 
+## Testing
+Backend tests can be run with:
+```bash
+cd backend && php artisan test -p 
+```
+
 # Original Requirements
 
 ## Overview
