@@ -42,4 +42,8 @@ return [
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
     ],
 
+    'websocket' => [
+        'url' => env('WEBSOCKET_URL', 'http://localhost:3001/notify'),
+    ],
+
 ];

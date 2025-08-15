@@ -72,7 +72,7 @@ class GeminiModerationService
                 ],
                 'generationConfig' => [
                     'temperature' => 0.1,
-                    'maxOutputTokens' => 500,
+                    'maxOutputTokens' => 1000,
                     'responseMimeType' => 'application/json',
                 ],
                 'safetySettings' => [
@@ -112,7 +112,11 @@ class GeminiModerationService
         $result = json_decode($text, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response: '.$text);
+            $result = $this->handlePartialJson($text);
+
+            if (! $result) {
+                throw new Exception('Invalid JSON response: '.$text);
+            }
         }
 
         return [
@@ -123,6 +127,32 @@ class GeminiModerationService
             'reason' => $result['reason'] ?? 'Unknown',
             'error' => false,
         ];
+    }
+
+    /** Handle partial JSON responses from Gemini */
+    private function handlePartialJson(string $text): ?array
+    {
+        $text = trim($text);
+
+        // quite strange results from gemini sometimes so we have to try to handle it ...
+        if (str_starts_with($text, '{') && ! str_ends_with($text, '}')) {
+            if (str_contains($text, '"categories": [') && ! str_contains($text, '],')) {
+                $lastQuotePos = strrpos($text, '"');
+                if ($lastQuotePos !== false) {
+                    $beforeQuote = substr($text, 0, $lastQuotePos + 1);
+                    $completed = $beforeQuote.'], "severity": "medium", "confidence": 0.8, "reason": "Content flagged for review"}';
+
+                    $result = json_decode($completed, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        Log::info('Successfully recovered from partial JSON response');
+
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public static function fakeAnswers(?string $type = null): array

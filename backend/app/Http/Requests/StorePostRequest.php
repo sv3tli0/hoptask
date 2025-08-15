@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Enums\PostStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePostRequest extends FormRequest
