@@ -10,9 +10,9 @@ use App\Models\PostModeration;
 use App\Models\User;
 use App\Services\GeminiModerationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
@@ -32,7 +32,7 @@ function setupHttp(?callable $configure = null): void
         ),
         'localhost:3001/*' => Http::response(['success' => true, 'clients' => 0], 200),
     ];
-    
+
     if ($configure) {
         $fakes = $configure($defaultFakes);
         Http::fake($fakes);
@@ -40,7 +40,6 @@ function setupHttp(?callable $configure = null): void
         Http::fake($defaultFakes);
     }
 }
-
 
 describe('Post Validation Tests', function () {
     it('rejects post without content', function () {
@@ -135,6 +134,7 @@ describe('Moderation Job Tests', function () {
                 GeminiModerationService::fakeAnswers('rejected'),
                 200
             );
+
             return $defaults;
         });
 
@@ -161,6 +161,7 @@ describe('Moderation Job Tests', function () {
     it('handles API errors gracefully', function () {
         setupHttp(function ($defaults) {
             $defaults['generativelanguage.googleapis.com/*'] = Http::response([], 500);
+
             return $defaults;
         });
 
@@ -182,6 +183,7 @@ describe('Moderation Job Tests', function () {
     it('creates failed moderation record on final attempt', function () {
         setupHttp(function ($defaults) {
             $defaults['generativelanguage.googleapis.com/*'] = Http::response([], 500);
+
             return $defaults;
         });
 
@@ -216,6 +218,7 @@ describe('Moderation Job Tests', function () {
                 GeminiModerationService::fakeAnswers('invalid_json'),
                 200
             );
+
             return $defaults;
         });
 
@@ -239,6 +242,7 @@ describe('Moderation Job Tests', function () {
                 GeminiModerationService::fakeAnswers('empty_response'),
                 200
             );
+
             return $defaults;
         });
 
@@ -301,6 +305,7 @@ describe('End-to-End Flow Tests', function () {
                 GeminiModerationService::fakeAnswers('rejected'),
                 200
             );
+
             return $defaults;
         });
 
@@ -331,6 +336,7 @@ describe('End-to-End Flow Tests', function () {
 
         setupHttp(function ($defaults) {
             $defaults['generativelanguage.googleapis.com/*'] = Http::response([], 500);
+
             return $defaults;
         });
 

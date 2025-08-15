@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\PostStatus;
 use App\Http\Requests\StorePostRequest;
-use App\Jobs\ModeratePostContentJob;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 
