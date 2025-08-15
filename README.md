@@ -1,4 +1,38 @@
-# Event-Driven Content Moderation System - Take-Home Assessment
+# Event-Driven Content Moderation System
+
+## Quick Start
+
+### Requirements
+- **PHP 8.4** with Composer v2
+- **Node.js 18+** with npm or bun
+
+### Setup (one-time)
+```bash
+npm run setup
+```
+
+### Run Development Environment! Gemini key must be set in `backend/.env`.
+```bash
+npm run dev
+```
+
+That's it! This starts all services:
+- **Vue frontend** (http://localhost:5173)
+- **Laravel API** (http://localhost:8000) 
+- **WebSocket server** (ws://localhost:3001/ws)
+- **Queue worker** for background jobs
+
+## Environment Configuration
+
+The setup command automatically:
+- Installs all dependencies (frontend + backend)
+- Copies `.env.example` to `.env` if needed
+- Generates Laravel app key
+- Runs database migrations
+
+**Important**: Add your `GEMINI_API_KEY` to `backend/.env` for content moderation to work.
+
+# Original Requirements
 
 ## Overview
 
