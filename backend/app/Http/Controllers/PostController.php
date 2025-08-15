@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Jobs\ModeratePostContentJob;
-use App\Jobs\WebSocketNotifyJob;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,22 +24,16 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request): JsonResponse
     {
-        if (! $request->user()->tokenCan('create_posts')) {
+        try {
             return response()->json([
-                'message' => 'Insufficient permissions to create posts',
-            ], 403);
+                'message' => 'Post created successfully',
+                'post' => Post::query()->create($request->validated()),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to create post',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $post = Post::query()->create($request->validated());
-
-        defer(function () use ($post) {
-            WebSocketNotifyJob::dispatch('post_created', $post->toWebSocketArray())->onQueue('websocket');
-            ModeratePostContentJob::dispatch($post->id)->onQueue('moderation');
-        });
-
-        return response()->json([
-            'message' => 'Post created successfully',
-            'post' => $post,
-        ], 201);
     }
 }

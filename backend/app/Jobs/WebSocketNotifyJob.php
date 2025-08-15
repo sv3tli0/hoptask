@@ -23,9 +23,7 @@ class WebSocketNotifyJob implements ShouldQueue
     public function __construct(
         public private(set) readonly string $event,
         public private(set) readonly array $data,
-    ) {
-        $this->onQueue('websocket');
-    }
+    ) {}
 
     public function handle(): void
     {

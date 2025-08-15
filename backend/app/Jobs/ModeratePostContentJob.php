@@ -58,10 +58,6 @@ class ModeratePostContentJob implements ShouldQueue
                 'moderation_reason' => $moderationResult['approved'] ? null : $moderationResult['reason'],
             ]);
 
-            WebSocketNotifyJob::dispatch('post_moderated', $post->toWebSocketArray())
-                ->delay(now()->addSeconds(1))
-                ->onQueue('websocket');
-
             Log::debug('Post moderation completed successfully', [
                 'post_id' => $post->id,
                 'approved' => $moderationResult['approved'],
@@ -91,9 +87,6 @@ class ModeratePostContentJob implements ShouldQueue
                     'status' => PostStatus::Rejected,
                     'moderation_reason' => 'Content could not be moderated due to service issues',
                 ]);
-
-                WebSocketNotifyJob::dispatch('post_moderation_failed', $post->toWebSocketArray())
-                    ->onQueue('websocket');
 
                 Log::error('Post moderation permanently failed', [
                     'post_id' => $post->id,
