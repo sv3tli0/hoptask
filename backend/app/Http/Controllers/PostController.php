@@ -8,11 +8,10 @@ use App\Http\Requests\StorePostRequest;
 use App\Jobs\ModeratePostContentJob;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         return response()->json([
             'posts' => Post::query()
