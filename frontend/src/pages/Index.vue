@@ -8,7 +8,6 @@ import TokenManager from '@/components/TokenManager.vue'
 const authStore = useAuthStore()
 const postsStore = usePostsStore()
 const postContent = ref('')
-const postTitle = ref('')
 const submittingPost = ref(false)
 
 const canCreatePosts = computed(() => authStore.isAuthenticated())
@@ -30,7 +29,7 @@ const fetchPosts = async () => {
 }
 
 const createPost = async () => {
-  if (!authStore.token || !postTitle.value.trim() || !postContent.value.trim()) {
+  if (!authStore.token || !postContent.value.trim()) {
     return
   }
 
@@ -38,14 +37,12 @@ const createPost = async () => {
   try {
     const response = await apiService.createPost(
         {
-          title: postTitle.value,
           content: postContent.value,
         },
         authStore.token
     )
 
     if (response.data) {
-      postTitle.value = ''
       postContent.value = ''
       // WebSocket will handle the update
     } else if (response.error) {
@@ -109,20 +106,6 @@ onUnmounted(() => {
             <h2 class="text-xl font-bold mb-4">Create New Post</h2>
             <form @submit.prevent="createPost" class="space-y-4">
               <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                  Title
-                </label>
-                <input
-                    id="title"
-                    v-model="postTitle"
-                    type="text"
-                    required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter post title"
-                >
-              </div>
-
-              <div>
                 <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
                   Content
                 </label>
@@ -138,7 +121,7 @@ onUnmounted(() => {
 
               <button
                   type="submit"
-                  :disabled="submittingPost || !postTitle.trim() || !postContent.trim()"
+                  :disabled="submittingPost || !postContent.trim()"
                   class="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 {{ submittingPost ? 'Creating...' : 'Create Post' }}
@@ -200,7 +183,7 @@ onUnmounted(() => {
                   ]"
                 ></div>
                 <div class="flex justify-between items-start mb-2">
-                  <h3 class="text-lg font-semibold">{{ post.title }}</h3>
+                  <h3 class="text-lg font-semibold">Post #{{ post.id }}</h3>
                   <span
                       :class="[
                     'px-2 py-1 text-xs rounded-full font-medium',

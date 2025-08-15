@@ -35,25 +35,15 @@ class Post extends Model
         'status' => PostStatus::class,
     ];
 
-    protected $appends = [
-        'title',
-    ];
-
     public function moderations(): HasMany
     {
         return $this->hasMany(PostModeration::class);
-    }
-
-    public function getTitleAttribute(): string
-    {
-        return 'Post '.$this->id;
     }
 
     public function toWebSocketArray(): array
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
             'content' => $this->content,
             'status' => $this->status->value,
             'moderation_reason' => $this->moderation_reason,

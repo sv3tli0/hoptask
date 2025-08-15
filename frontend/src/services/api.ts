@@ -17,7 +17,6 @@ export interface Post {
 }
 
 export interface CreatePostRequest {
-  title: string
   content: string
 }
 
