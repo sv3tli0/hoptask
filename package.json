@@ -5,7 +5,7 @@
   "main": "websocket-server.js",
   "scripts": {
     "build": "npm run build:deps && npm run build:frontend && npm run build:backend",
-    "build:deps": "npm install && cd frontend && npm install && cd ../backend && composer install --no-dev --optimize-autoloader",
+    "build:deps": "npm install && cd frontend && npm install && cd ../backend && composer install && php artisan migrate --force",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && php artisan config:cache && php artisan route:cache && php artisan view:cache",
     "dev": "concurrently --kill-others --prefix '[{name}]' --names 'websocket,laravel,queue,vue' 'npm run ws' 'npm run laravel:serve' 'npm run laravel:queue' 'npm run vue:dev'",

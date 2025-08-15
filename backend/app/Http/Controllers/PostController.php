@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostStatus;
 use App\Http\Requests\StorePostRequest;
 use App\Jobs\ModeratePostContentJob;
 use App\Models\Post;
@@ -26,7 +27,10 @@ class PostController extends Controller
         try {
             return response()->json([
                 'message' => 'Post created successfully',
-                'post' => Post::query()->create($request->validated()),
+                'post' => Post::query()->create(array_merge(
+                    $request->validated(),
+                    ['status' => PostStatus::DEFAULT->value]
+                )),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

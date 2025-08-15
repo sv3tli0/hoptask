@@ -55,7 +55,7 @@ class Post extends Model
             'id' => $this->id,
             'title' => $this->title,
             'content' => $this->content,
-            'status' => $this->status?->value,
+            'status' => $this->status->value,
             'moderation_reason' => $this->moderation_reason,
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
