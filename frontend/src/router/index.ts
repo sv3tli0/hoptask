@@ -5,4 +5,9 @@ const router = createRouter({
   routes: [],
 })
 
+router.addRoute({
+  name: 'home',
+  path: '/',
+  component: () => import('../pages/Index.vue'),
+})
 export default router
